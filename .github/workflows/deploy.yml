@@ -1,11 +1,8 @@
 name: Deploy Snowflake SQL
 
-# Trigger deployment
-
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
 
 jobs:
   deploy:
@@ -23,6 +20,26 @@ jobs:
       - name: Check Snowflake CLI
         run: snow --version
 
+      - name: Test Snowflake connection
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+          SNOWFLAKE_DATABASE: MY_DB
+          SNOWFLAKE_SCHEMA: PUBLIC
+          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+        run: |
+          snow connection test \
+            --temporary-connection \
+            --account "$SNOWFLAKE_ACCOUNT" \
+            --user "$SNOWFLAKE_USER" \
+            --password "$SNOWFLAKE_PASSWORD" \
+            --warehouse "$SNOWFLAKE_WAREHOUSE" \
+            --database "$SNOWFLAKE_DATABASE" \
+            --schema "$SNOWFLAKE_SCHEMA" \
+            --role "$SNOWFLAKE_ROLE"
+
       - name: Run Snowflake SQL files
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
@@ -33,7 +50,42 @@ jobs:
           SNOWFLAKE_SCHEMA: PUBLIC
           SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
         run: |
-          snow sql -f snowflake/V1__create_stage_and_file_format.sql
-          snow sql -f snowflake/V2__create_curated_table.sql
-          snow sql -f snowflake/V3__create_final_table.sql
-          snow sql -f snowflake/V4__create_views.sql
+          snow sql --temporary-connection \
+            --account "$SNOWFLAKE_ACCOUNT" \
+            --user "$SNOWFLAKE_USER" \
+            --password "$SNOWFLAKE_PASSWORD" \
+            --warehouse "$SNOWFLAKE_WAREHOUSE" \
+            --database "$SNOWFLAKE_DATABASE" \
+            --schema "$SNOWFLAKE_SCHEMA" \
+            --role "$SNOWFLAKE_ROLE" \
+            -f snowflake/V1__create_stage_and_file_format.sql
+
+          snow sql --temporary-connection \
+            --account "$SNOWFLAKE_ACCOUNT" \
+            --user "$SNOWFLAKE_USER" \
+            --password "$SNOWFLAKE_PASSWORD" \
+            --warehouse "$SNOWFLAKE_WAREHOUSE" \
+            --database "$SNOWFLAKE_DATABASE" \
+            --schema "$SNOWFLAKE_SCHEMA" \
+            --role "$SNOWFLAKE_ROLE" \
+            -f snowflake/V2__create_curated_table.sql
+
+          snow sql --temporary-connection \
+            --account "$SNOWFLAKE_ACCOUNT" \
+            --user "$SNOWFLAKE_USER" \
+            --password "$SNOWFLAKE_PASSWORD" \
+            --warehouse "$SNOWFLAKE_WAREHOUSE" \
+            --database "$SNOWFLAKE_DATABASE" \
+            --schema "$SNOWFLAKE_SCHEMA" \
+            --role "$SNOWFLAKE_ROLE" \
+            -f snowflake/V3__create_final_table.sql
+
+          snow sql --temporary-connection \
+            --account "$SNOWFLAKE_ACCOUNT" \
+            --user "$SNOWFLAKE_USER" \
+            --password "$SNOWFLAKE_PASSWORD" \
+            --warehouse "$SNOWFLAKE_WAREHOUSE" \
+            --database "$SNOWFLAKE_DATABASE" \
+            --schema "$SNOWFLAKE_SCHEMA" \
+            --role "$SNOWFLAKE_ROLE" \
+            -f snowflake/V4__create_views.sql
