@@ -1,5 +1,7 @@
 name: Deploy Snowflake SQL
 
+# Trigger deployment
+
 on:
   push:
     branches: [ main ]
