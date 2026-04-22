@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Snowflake CLI
-        uses: snowflakedb/snowflake-cli-action@v1
+        uses: snowflakedb/snowflake-cli-action@v1.5.0
         env:
           SNOWFLAKE_CONNECTIONS_DEFAULT_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_CONNECTIONS_DEFAULT_USER: ${{ secrets.SNOWFLAKE_USER }}
